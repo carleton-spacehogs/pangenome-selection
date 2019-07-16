@@ -20,11 +20,11 @@ library(factoextra)
 
 #load all the data needed
 
-pangenome <- as.matrix(read.table('similarity_matrix.txt', 
+pangenome <- as.matrix(read.table('txt_files/similarity_matrix.txt', 
                                   quote = "",sep='\t',header=FALSE)) 
 #load the similarity matrix data
 
-cluster<- read.table('Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",
+cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",
                      header=TRUE) 
 #load the summarized sulfurovum pangenome profile from anvi'o
 
