@@ -2,11 +2,12 @@
 title: "Generating Figures for Moulana et al."
 author: "Alief Moulana"
 date: "7/10/2019"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
+
 
 #load all necessary packages
 library(reshape2)
