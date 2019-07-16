@@ -4,7 +4,7 @@ Alief Moulana
 7/10/2019
 
 ``` r
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 
 #load all necessary packages
