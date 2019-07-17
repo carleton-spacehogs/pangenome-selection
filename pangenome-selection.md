@@ -15,6 +15,10 @@ library(tidyr)
 library(dplyr)
 library(stringr)
 library(factoextra)
+<<<<<<< HEAD
+library(RColorBrewer)
+=======
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 
 #load all the data needed
 
@@ -44,10 +48,17 @@ the result from the chunk below (Supplementary Figure 2).
 cluster.basic.count <- unique(data.frame(Group=cluster$gene_cluster_id,
                                   Number=cluster$num_genomes_gene_cluster_has_hits,
                                   Genome=cluster$genome_name)) 
+<<<<<<< HEAD
+# create df, remove duplicates
+cluster.basic.count$Group <- as.character(cluster.basic.count$Group)
+
+# reshape df
+=======
 #create df, remove duplicates
 cluster.basic.count$Group <- as.character(cluster.basic.count$Group)
 
 #reshape df
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 cluster.basic.reshaped <- reshape(cluster.basic.count,v.names="Number",
                                   timevar="Genome",idvar=c("Group"),direction="wide")
 cluster.basic.matrix <- as.matrix(cluster.basic.reshaped[,2:23]) #turn into matrix
@@ -55,25 +66,41 @@ cluster.basic.matrix[] <- c(TRUE,FALSE)[(is.na(cluster.basic.matrix) )+ 1] #bina
 
 total.each.genome <- apply(cluster.basic.matrix,2,sum) #numb of gene groups per genome
 
+<<<<<<< HEAD
+# create a function returning whether or not the sum of a row up until i equals i
+=======
 #create a function returning whether or not the sum of a row up until i equals i
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 count.sum <- function(row,i){
   sum(row[1:i]) == i
 }
 
+<<<<<<< HEAD
+# create a vector that count the number of core genes taking into account i genomes
+=======
 #create a vector that count the number of core genes taking into account i genomes
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 core.now <- c()
 for(j in 1:22){
   core.now[j] <- sum(apply(cluster.basic.matrix,1,count.sum,j))
 }
 
+<<<<<<< HEAD
+# create a function to perform the analysis below
+=======
 #create a function to perform the analysis below
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 count.sum.2 <- function(numb,x){
   var <- sum(apply(as.matrix(cluster.basic.matrix[,1:x-1]),1,sum) ==0 & 
                cluster.basic.matrix[,x] == 1)
   return(numb+var)
 }
 
+<<<<<<< HEAD
+# create a vector that expands number of genes as more genomes sequenced
+=======
 #create a vector that expands number of genes as more genomes sequenced
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 total.now <- c()
 total.now[1] <- total.each.genome[1]
 count <- total.now[1]
@@ -81,7 +108,11 @@ for(k in 2:22){
   total.now[k] <- count.sum.2(count,k)
   count <- total.now[k]
 }
+<<<<<<< HEAD
+# merge the core now and total now
+=======
 #merge the core now and total now
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 count.groups <- data.frame(Number=c(1:22),Core=core.now,Total=total.now)
 ggplot(count.groups,aes(x=Number))+
   geom_line(aes(y=Core,colour="Number of Core Genes"))+
@@ -127,12 +158,20 @@ colnames(heat_map.data.melt)<-c("MAG_1", "MAG_2", "Contained")
 
 # cluster the data based on the genome content overlap
 a <- hclust(as.dist(1-heat_map.data[, -23]))
+<<<<<<< HEAD
+a$labels <- genome_numbering
+=======
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 library(factoextra)
 dend_plot <- fviz_dend(a)
 dend_plot # this gets the dendrogram
 ```
 
+<<<<<<< HEAD
+<img src="pangenome-selection_files/figure-gfm/similarity-figure-1.png" width="60%" height="60%" />
+=======
 ![](pangenome-selection_files/figure-gfm/similarity-figure-1.png)<!-- -->
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 
 ``` r
 order <- a$order
@@ -141,14 +180,22 @@ order <- a$order
 heat_map.data.melt$MAG_1 <- factor(heat_map.data.melt$MAG_1, levels=ifelse(order < 10, paste0("Sulfurovum_0", order), paste0("Sulfurovum_", order)))
 heat_map.data.melt$MAG_2 <- factor(heat_map.data.melt$MAG_2, levels=ifelse(order < 10, paste0("Sulfurovum_0", order), paste0("Sulfurovum_", order)))
 
+<<<<<<< HEAD
+# Fig 1B
+=======
 # plot the heatmap
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 ggplot(data = heat_map.data.melt, aes(x = MAG_1, y = MAG_2)) +
   geom_tile(aes(fill = Contained))+
   scale_fill_gradientn(colours = c("white", "lightblue", "darkblue"), values = c(0,0.5,1))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+<<<<<<< HEAD
+<img src="pangenome-selection_files/figure-gfm/similarity-figure-2.png" width="60%" height="60%" />
+=======
 ![](pangenome-selection_files/figure-gfm/similarity-figure-2.png)<!-- -->
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 
 Because our pangenome is created upon metagenomes, we need to be careful
 when declaring a gene to be in the core genome. We simulate the
@@ -184,7 +231,11 @@ for (i in 1:21){
 colnames(collection) = c("MAGs","Probability")
 collection$MAGs <- as.factor(collection$MAGs)
 
+<<<<<<< HEAD
+# Supplement figure for probability
+=======
 # the plot
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
 ggplot(collection,mapping=aes(x=MAGs,y=Probability))+
   scale_y_log10()+
   geom_boxplot()+
@@ -197,6 +248,143 @@ ggplot(collection,mapping=aes(x=MAGs,y=Probability))+
   geom_hline(yintercept=0.05,color="red")
 ```
 
+<<<<<<< HEAD
+<img src="pangenome-selection_files/figure-gfm/simulation-contained-1.png" width="40%" height="40%" />
+
+## The distinct functions between high- and low-frequency genes
+
+We then analyzed the gene annotations and studied the annotation
+distribution across gene frequency.
+
+``` r
+# data and manipulation
+COG <- read.table('txt_files/COG_category.txt',sep='\t',header=TRUE)
+Categories <- read.table('txt_files/COG_explanation.txt',sep='\t',header=FALSE)
+colnames(COG) <- c('Category',as.character(c(1:22)))
+COG_melt <- melt(COG, id=c("Category"))
+
+# some color palette functions
+colourCount = length(unique(COG$Category))
+getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+
+load("permutation_test.RData") #get the permuation test result
+colnames(p.df) <- c(1:22)
+p.df$categories <- COG$Category
+p.df$explanation <- Categories$V2
+p.df.melt <- melt(p.df, id=c("categories","explanation"))
+#p.values significy the frequency such that the observed values are greater than or equal to the simulated values
+
+#get distance matrix between categories
+n.categories <- 24
+n.genomes <- 22
+
+distance.matrix <- matrix(0,ncol=n.categories,nrow=n.categories)
+
+for(i in 1:n.categories){
+  for(j in 1:n.categories){
+    current <- 0
+    for(k in 1:n.genomes){
+      current <- current + (p.matrix[i,k]-p.matrix[j,k])^2
+    }
+    distance.matrix[i,j]<-current
+  }
+} #calculate the sum of squared distance in p-values between categories
+colnames(distance.matrix) <- COG$Category
+rownames(distance.matrix) <- COG$Category
+p.cluster <- hclust(as.dist(distance.matrix)) #hierarchical clustering
+library(factoextra)
+p.dendrogram <- fviz_dend(p.cluster,show_labels = TRUE)
+p.dendrogram #get the dendrogram
+```
+
+<img src="pangenome-selection_files/figure-gfm/unnamed-chunk-1-1.png" width="50%" height="50%" />
+
+``` r
+category.vector <- as.vector(COG$Category) 
+explanation.vector <- as.vector(p.df$explanation) #explanation vector
+order <- p.cluster$order
+p.df.melt$explanation <- factor(p.df$explanation, levels=explanation.vector[order])
+COG_melt$Category <- factor(COG_melt$Category, levels=COG_melt$Category[order])
+
+# Fig 2A that shows the trend of COG categories across gene frequency
+ggplot(COG_melt,aes(x=variable, y=value, fill=Category))+
+  geom_bar( stat="identity", position="fill")+
+  xlab("Number of MAGs") +
+  ylab("Gene Category Count") +
+  scale_fill_manual(values = getPalette(colourCount)) +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        legend.text=element_text(size=10),
+        legend.title=element_blank(),
+        axis.title=element_text(size=14),
+        legend.position = "right")
+```
+
+<img src="pangenome-selection_files/figure-gfm/unnamed-chunk-1-2.png" width="50%" height="50%" />
+
+P-value figure as the following.
+
+``` r
+# for p_value (Supplement)
+ggplot(data = p.df.melt, aes(x = variable, y = categories)) +
+  geom_tile(data=subset(p.df.melt,value < 0.001),aes(fill = (value*10000)-20))+
+  geom_tile(data=subset(p.df.melt,value > 0.999),aes(fill = ((value-1)*10000)+20))+
+  geom_tile(data=subset(p.df.melt,value >= 0.001 & value <= 0.999),aes(fill = (value-0.5)/100))+
+  scale_fill_gradient2(limits=c(-20, 20),guide = "colourbar",
+                        low = "darkred", mid= "white", high = "darkblue",midpoint=0)+
+  xlab("Number of MAGs (Frequency)") +
+  guides(fill=guide_legend(title="P(Observed > Expected)"))+
+  theme(plot.title = element_text(hjust = -0.4),
+        plot.margin = rep(grid::unit(0.75,"in"),4))+
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y=element_text(size=12),
+        legend.text=element_text(size=12),
+        legend.position="none",
+        axis.title=element_text(size=14),
+        title=element_text(size=14),
+        axis.title.y=element_blank())
+```
+
+![](pangenome-selection_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+We then analyzed specific categories
+
+``` r
+# melting and data manipulation
+COG_prop <-  data.frame(prop.table(as.matrix(COG[,-1]), margin = 2))
+COG_prop$Group <- COG$Category
+COG_prop$Explanation <- Categories$V2
+COG_prop$Group <- factor(COG_prop$Group, levels=COG_prop$Group[order])
+COG_prop$Explanation <- factor(COG_prop$Explanation,
+                               levels=COG_prop$Explanation[order])
+
+COG_prop.melt <- melt(COG_prop,id=c("Group","Explanation"))
+COG_prop.melt$variable <- rep(1:22,each=24)
+
+# here we make sure that the color matches the color in Fig 2A
+Color_select <- data.frame(Group= levels(COG_prop$Group), 
+                          Color= getPalette(colourCount))
+concerned.group <- c('J','E','M','P')
+concerned.color <- as.vector(Color_select[Color_select$Group %in% concerned.group,]$Color)
+
+# Fig 2B 
+ggplot(COG_prop.melt[COG_prop.melt$Group %in% concerned.group,],aes(x=variable,y=value))+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  xlab("Number of MAGs")+
+  ylab("Proportion")+
+  theme(axis.text=element_text(size=12),
+        legend.position="none",
+        axis.title=element_text(size=12),
+        strip.text = element_text(size=10))+
+  facet_wrap(~Explanation,ncol=2)+
+  aes(fill=Group)+
+  scale_fill_manual(values=concerned.color) 
+```
+
+![](pangenome-selection_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+=======
 <img src="pangenome-selection_files/figure-gfm/simulation-contained-1.png" width="60%" height="60%" />
 
 ## The distinct functions between high- and low-frequency genes
+>>>>>>> 5523b6f6fd05f41dd20f4ab2e6e70539d8994a6b
