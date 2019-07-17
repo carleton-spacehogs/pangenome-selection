@@ -40,8 +40,7 @@ pangenome <- as.matrix(read.table('txt_files/similarity_matrix.txt',
                                   quote = "",sep='\t',header=FALSE)) 
 #load the similarity matrix data
 
-cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",
-                     header=TRUE) 
+cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",header=TRUE) 
 #load the summarized sulfurovum pangenome profile from anvi'o
 ```
 
@@ -119,7 +118,7 @@ ggplot(count.groups,aes(x=Number))+
         legend.position = c(0.3, 0.85))
 ```
 
-![](pangenome-selection_files/figure-gfm/pangenome.count-1.png)<!-- -->
+<img src="pangenome-selection_files/figure-gfm/pangenome.count-1.png" width="60%" height="60%" />
 
 Moreover, we also analyze the similarity in gene content among MAGs. We
 first run `similarity_matrix.py` which takes the cluster file as an

@@ -24,15 +24,14 @@ pangenome <- as.matrix(read.table('txt_files/similarity_matrix.txt',
                                   quote = "",sep='\t',header=FALSE)) 
 #load the similarity matrix data
 
-cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",
-                     header=TRUE) 
+cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",header=TRUE) 
 #load the summarized sulfurovum pangenome profile from anvi'o
 
 ```
 ## Taxonomy distribution and pangenomic profile
 We performed the common metagenomic pipeline of assembly, mapping, binning, and annotation (see Methods). Then, we generated Supplementary Figure 1 on a spread sheet using the taxonomy data we obtained from "phylosift". Because Sulfurovum was the most abundant genus in both Mid Cayman Rise and Axial genomes, we used Sulfurovum MAGs in the subsequent pangenome analyses following "anvi'o" pangenome workflow. Then we captured Figure 1A using command `anvi-display-pan` with genomes storage and pangenome databases generated from the previous steps. Moreover, we obtained the summary of the pangenome profile (the cluster file) by running the command `anvi-summarize` for the PAN DB. We also analyzed how the pattern of total and core genome accumulation as more MAGs considered. We visualize the result from the chunk below (Supplementary Figure 2).
 
-```{r pangenome.count}
+```{r pangenome.count, out.width='60%', out.height='60%'}
 cluster.basic.count <- unique(data.frame(Group=cluster$gene_cluster_id,
                                   Number=cluster$num_genomes_gene_cluster_has_hits,
                                   Genome=cluster$genome_name)) 
