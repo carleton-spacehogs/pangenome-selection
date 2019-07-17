@@ -292,4 +292,8 @@ ggplot(COG_prop.melt[COG_prop.melt$Group %in% concerned.group,],aes(x=variable,y
   scale_fill_manual(values=concerned.color) 
 ```
 
+We then calculated the enrichment of a gene group in one region vs. the other by assuming binomial distribution for each gene group.
 
+```{r}
+
+```
