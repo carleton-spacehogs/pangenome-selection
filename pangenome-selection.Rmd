@@ -22,16 +22,16 @@ library(RColorBrewer)
 
 #load all the data needed
 
-pangenome <- as.matrix(read.table('txt_files/similarity_matrix.txt', 
+pangenome <- as.matrix(read.table('aux_files/similarity_matrix.txt', 
                                   quote = "",sep='\t',header=FALSE)) 
 #load the similarity matrix data
 
-cluster<- read.table('txt_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",header=TRUE) 
+cluster<- read.table('aux_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",header=TRUE) 
 #load the summarized sulfurovum pangenome profile from anvi'o
 
 ```
 ## Taxonomy distribution and pangenomic profile
-We performed the common metagenomic pipeline of assembly, mapping, binning, and annotation (see Methods; refer to citations). Because Sulfurovum was the most abundant genus in both Mid Cayman Rise and Axial genomes, we used Sulfurovum MAGs in the subsequent pangenome analyses following "anvi'o" pangenome workflow. Then we captured Figure 1A using command `anvi-display-pan` with genomes storage and pangenome databases generated from the previous steps. Moreover, we obtained the summary of the pangenome profile (the cluster file) by running the command `anvi-summarize` for the PAN DB. We also analyzed how the pattern of total and core genome accumulation as more MAGs considered. We visualize the result from the chunk below (Supplementary Figure 2).
+We performed the common metagenomic pipeline of assembly, mapping, binning, and annotation (see Methods; refer to citations). Because Sulfurovum was the most abundant genus in both Mid Cayman Rise and Axial genomes, we used Sulfurovum MAGs in the subsequent pangenome analyses following "anvi'o" pangenome workflow. Then we captured Figure 1A using command `anvi-display-pan` with genomes storage and pangenome databases generated from the previous steps. Moreover, we obtained the summary of the pangenome profile (the cluster file `Sulfurovum_gene_clusters_summary_cleaned.txt`) by running the command `anvi-summarize` for the PAN DB. We also analyzed how the pattern of total and core genome accumulation as more MAGs considered. We visualize the result from the chunk below (Supplementary Figure 2).
 
 ```{r pangenome.count, out.width='60%', out.height='60%'}
 cluster.basic.count <- unique(data.frame(Group=cluster$gene_cluster_id,
@@ -134,10 +134,9 @@ ggplot(data = heat_map.data.melt, aes(x = MAG_1, y = MAG_2)) +
 
 Because our pangenome is created upon metagenomes, we need to be careful when declaring a gene to be in the core genome. We simulate the probability that a gene found in $n$ genomes to be actually a core genome, exlcluding genes found in 22 genomes.
 
-<<<<<<< HEAD
 ```{r simulation-contained, out.width='60%', out.height='60%'}
 # summary file created based on `anvi-summarize` output
-summary_data <- read.table('txt_files/sulfurovum_summary.txt',
+summary_data <- read.table('aux_files/sulfurovum_summary.txt',
                            sep='\t',header=TRUE,quote="",na.strings = "",fill = TRUE )
 
 # function that takes in a number i and outputs the probability that a gene is a missing gene in the ith genome
@@ -180,12 +179,14 @@ ggplot(collection,mapping=aes(x=MAGs,y=Probability))+
 
 ## The distinct functions between high- and low-frequency genes
 
-We then analyzed the gene annotations and studied the annotation distribution across gene frequency.
+We then analyzed the gene annotations and studied the annotation distribution across gene frequency. To get the count table for category count across number of MAGs, which is in the output file `COG_category.txt`, run `get_functions.py`.
 
 ```{r out.height='50%', out.width='50%'}
 # data and manipulation
-COG <- read.table('txt_files/COG_category.txt',sep='\t',header=TRUE)
-Categories <- read.table('txt_files/COG_explanation.txt',sep='\t',header=FALSE)
+COG <- na.omit(read.table('aux_files/Sulfurovum_function_list.txt',
+                          sep='\t',header=TRUE))
+COG <- arrange(COG,Category)
+Categories <- read.table('aux_files/COG_explanation.txt',sep='\t',header=FALSE)
 colnames(COG) <- c('Category',as.character(c(1:22)))
 COG_melt <- melt(COG, id=c("Category"))
 
@@ -195,13 +196,13 @@ getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 
 load("permutation_test.RData") #get the permuation test result
 colnames(p.df) <- c(1:22)
-p.df$categories <- COG$Category
-p.df$explanation <- Categories$V2
+p.df$categories <- factor(COG$Category, levels=COG$Category[order])
+p.df$explanation <- factor(Categories$V2, levels=Categories$V2[order])
 p.df.melt <- melt(p.df, id=c("categories","explanation"))
 #p.values significy the frequency such that the observed values are greater than or equal to the simulated values
 
 #get distance matrix between categories
-n.categories <- 24
+n.categories <- 25
 n.genomes <- 22
 
 distance.matrix <- matrix(0,ncol=n.categories,nrow=n.categories)
@@ -275,7 +276,7 @@ COG_prop$Explanation <- factor(COG_prop$Explanation,
                                levels=COG_prop$Explanation[order])
 
 COG_prop.melt <- melt(COG_prop,id=c("Group","Explanation"))
-COG_prop.melt$variable <- rep(1:22,each=24)
+COG_prop.melt$variable <- rep(1:22,each=25)
 
 # here we make sure that the color matches the color in Fig 2A
 Color_select <- data.frame(Group= levels(COG_prop$Group), 
@@ -298,9 +299,28 @@ ggplot(COG_prop.melt[COG_prop.melt$Group %in% concerned.group,],aes(x=variable,y
   scale_fill_manual(values=concerned.color) 
 ```
 
-We then calculated the enrichment of a gene group in one region vs. the other by assuming binomial distribution for each gene group.
+We then calculated the enrichment of a gene group in one region vs. the other by assuming binomial distribution for each gene group. First, run `parse_vent_function.py` to calculate the occurrence of each gene cluster in either of the vent regions, which then gives an output of `Sulfurovum_vent_count_per_cluster.txt`. Then, run `compare_mcr_axial.py 12 8` to find the binomial CDF for gene clusters found in Axial genomes only for cluster that are found in at least all but one MAGs of either Axial or MCR, which generates `Sulfurovum_Axial_enriched_compressed.txt`. We process the data below.
 
 ```{r}
+enrichment<-na.omit(read.table('aux_files/Sulfurovum_Axial_enriched_compressed.txt',
+                               sep='\t',header=TRUE,quote="",na.strings = "")) # load the data
 
+# the jittery plot in Figure 3
+ggplot(data = enrichment, mapping = aes(x=Category, y=Enrichment)) +
+  geom_boxplot(alpha = 0,na.rm = TRUE) +
+  geom_jitter(alpha = 0.3, aes(colour = Category),na.rm=TRUE,size=3)+
+  geom_hline(yintercept=0.05, linetype=2, color = "red", size=1)+
+  geom_hline(yintercept=0.95, linetype=2, color = "blue", size=1)+
+  theme_bw()+
+  ylab("Binomial CDF for Proportion in Axial")+
+  theme(axis.text=element_text(size=16),
+        legend.text=element_text(size=16),
+        axis.title=element_text(size=20),
+        legend.position = "none")
+
+# now only look at the P category to see the difference from others
+enrichment.P <- subset(enrichment,Category == 'P') # extract this into Table 1 (for Top 15 with lowest CDF score)
+enrichment.Non <- subset(enrichment,Category != 'P')
+t.test(enrichment.P$Enrichment,enrichment.Non$Enrichment,alternative="less")
 ```
 

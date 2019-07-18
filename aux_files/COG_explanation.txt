@@ -22,3 +22,4 @@ U	Intracellular trafficking and secretion
 V	Defense mechanisms
 W	Extracellular structures
 X	N/A
+Z	Cytoskeleton
