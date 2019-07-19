@@ -17,6 +17,8 @@ library(factoextra)
 library(RColorBrewer)
 library(tm)
 
+All associated python and txt files are in the directory `aux_files`. All commands accessible here ust be run inside the directory.
+
 #load all the data needed
 
 pangenome <- as.matrix(read.table('aux_files/similarity_matrix.txt', 
