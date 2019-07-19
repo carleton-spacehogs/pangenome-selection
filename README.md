@@ -17,8 +17,6 @@ library(factoextra)
 library(RColorBrewer)
 library(tm)
 
-All associated python and txt files are in the directory `aux_files`. All commands accessible here ust be run inside the directory.
-
 #load all the data needed
 
 pangenome <- as.matrix(read.table('aux_files/similarity_matrix.txt', 
@@ -28,6 +26,7 @@ pangenome <- as.matrix(read.table('aux_files/similarity_matrix.txt',
 cluster<- read.table('aux_files/Sulfurovum_gene_clusters_summary_cleaned.txt',sep='\t',quote="",header=TRUE) 
 #load the summarized sulfurovum pangenome profile from anvi'o
 ```
+Note: All associated python and txt files are in the directory `aux_files`. All commands accessible here ust be run inside the directory.
 
 ## Taxonomy distribution and pangenomic profile
 
