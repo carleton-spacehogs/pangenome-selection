@@ -18,7 +18,7 @@ library(dplyr)
 library(stringr)
 library(factoextra)
 library(RColorBrewer)
-
+library(tm)
 
 #load all the data needed
 
@@ -31,7 +31,7 @@ cluster<- read.table('aux_files/Sulfurovum_gene_clusters_summary_cleaned.txt',se
 
 ```
 ## Taxonomy distribution and pangenomic profile
-We performed the common metagenomic pipeline of assembly, mapping, binning, and annotation (see Methods; refer to citations). Because Sulfurovum was the most abundant genus in both Mid Cayman Rise and Axial genomes, we used Sulfurovum MAGs in the subsequent pangenome analyses following "anvi'o" pangenome workflow. Then we captured Figure 1A using command `anvi-display-pan` with genomes storage and pangenome databases generated from the previous steps. Moreover, we obtained the summary of the pangenome profile (the cluster file `Sulfurovum_gene_clusters_summary_cleaned.txt`) by running the command `anvi-summarize` for the PAN DB. We also analyzed how the pattern of total and core genome accumulation as more MAGs considered. We visualize the result from the chunk below (Supplementary Figure 2).
+We performed the common metagenomic pipeline of assembly, mapping, binning, and annotation (see Methods; refer to citations). We then analyzed the taxonomic composition in each region using Excel (Supplementary Figure 1; from `Taxonomy_data.xlsx`). Because Sulfurovum was the most abundant genus in both Mid Cayman Rise and Axial genomes, we used Sulfurovum MAGs in the subsequent pangenome analyses following "anvi'o" pangenome workflow. Then we captured Figure 1A using command `anvi-display-pan` with genomes storage and pangenome databases generated from the previous steps. Moreover, we obtained the summary of the pangenome profile (the cluster file `Sulfurovum_gene_clusters_summary_cleaned.txt`) by running the command `anvi-summarize` for the PAN DB. We also analyzed how the pattern of total and core genome accumulation as more MAGs considered. We visualize the result from the chunk below (Supplementary Figure 2).
 
 ```{r pangenome.count, out.width='60%', out.height='60%'}
 cluster.basic.count <- unique(data.frame(Group=cluster$gene_cluster_id,
@@ -169,9 +169,11 @@ ggplot(collection,mapping=aes(x=MAGs,y=Probability))+
   scale_y_log10()+
   geom_boxplot()+
   theme_bw()+
-  theme(axis.text=element_text(size=18),
-        legend.text=element_text(size=18),
-        axis.title=element_text(size=24))+
+  theme(axis.text=element_text(size=12),
+        legend.text=element_text(size=12),
+        legend.title=element_blank(),
+        axis.title=element_text(size=14),
+        )+
   labs(x="Number of MAGs",
        y="Probability of Core")+
   geom_hline(yintercept=0.05,color="red")
@@ -181,7 +183,7 @@ ggplot(collection,mapping=aes(x=MAGs,y=Probability))+
 
 We then analyzed the gene annotations and studied the annotation distribution across gene frequency. To get the count table for category count across number of MAGs, which is in the output file `COG_category.txt`, run `get_functions.py`.
 
-```{r out.height='50%', out.width='50%'}
+```{r out.height='60%', out.width='60%'}
 # data and manipulation
 COG <- na.omit(read.table('aux_files/Sulfurovum_function_list.txt',
                           sep='\t',header=TRUE))
@@ -236,7 +238,7 @@ ggplot(COG_melt,aes(x=variable, y=value, fill=Category))+
   scale_fill_manual(values = getPalette(colourCount)) +
   theme_bw()+
   theme(axis.text=element_text(size=12),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=12),
         legend.title=element_blank(),
         axis.title=element_text(size=14),
         legend.position = "right")
@@ -244,7 +246,7 @@ ggplot(COG_melt,aes(x=variable, y=value, fill=Category))+
 ```
 
 P-value figure as the following.
-```{r fig.height=6}
+```{r fig.height=6, out.width='60%'}
 # for p_value (Supplement)
 ggplot(data = p.df.melt, aes(x = variable, y = categories)) +
   geom_tile(data=subset(p.df.melt,value < 0.001),aes(fill = (value*10000)-20))+
@@ -266,7 +268,7 @@ ggplot(data = p.df.melt, aes(x = variable, y = categories)) +
 ```
 
 We then analyzed specific categories
-```{r}
+```{r COG, out.height='60%',out.width='60%'}
 # melting and data manipulation
 COG_prop <-  data.frame(prop.table(as.matrix(COG[,-1]), margin = 2))
 COG_prop$Group <- COG$Category
@@ -292,7 +294,7 @@ ggplot(COG_prop.melt[COG_prop.melt$Group %in% concerned.group,],aes(x=variable,y
   ylab("Proportion")+
   theme(axis.text=element_text(size=12),
         legend.position="none",
-        axis.title=element_text(size=12),
+        axis.title=element_text(size=14),
         strip.text = element_text(size=10))+
   facet_wrap(~Explanation,ncol=2)+
   aes(fill=Group)+
@@ -301,7 +303,7 @@ ggplot(COG_prop.melt[COG_prop.melt$Group %in% concerned.group,],aes(x=variable,y
 
 We then calculated the enrichment of a gene group in one region vs. the other by assuming binomial distribution for each gene group. First, run `parse_vent_function.py` to calculate the occurrence of each gene cluster in either of the vent regions, which then gives an output of `Sulfurovum_vent_count_per_cluster.txt`. Then, run `compare_mcr_axial.py 12 8` to find the binomial CDF for gene clusters found in Axial genomes only for cluster that are found in at least all but one MAGs of either Axial or MCR, which generates `Sulfurovum_Axial_enriched_compressed.txt`. We process the data below.
 
-```{r}
+```{r mcr_vs_axial, out.height='60%', out.width='60%'}
 enrichment<-na.omit(read.table('aux_files/Sulfurovum_Axial_enriched_compressed.txt',
                                sep='\t',header=TRUE,quote="",na.strings = "")) # load the data
 
@@ -313,9 +315,8 @@ ggplot(data = enrichment, mapping = aes(x=Category, y=Enrichment)) +
   geom_hline(yintercept=0.95, linetype=2, color = "blue", size=1)+
   theme_bw()+
   ylab("Binomial CDF for Proportion in Axial")+
-  theme(axis.text=element_text(size=16),
-        legend.text=element_text(size=16),
-        axis.title=element_text(size=20),
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
         legend.position = "none")
 
 # now only look at the P category to see the difference from others
@@ -324,3 +325,269 @@ enrichment.Non <- subset(enrichment,Category != 'P')
 t.test(enrichment.P$Enrichment,enrichment.Non$Enrichment,alternative="less")
 ```
 
+## Signatures of non-neutral evolution in the pangenome
+
+In this section, we first calculated the pN/pS ratios of each gene (not gene cluster) in the pangenome. To do so, we used `anvi-script-calculated-pn-ps-ratio` as described in Methods (we ran `get-variability-profile-scv.py` and `get-pn-ps.sh`). Note that, we did this step for each sample, so we need to create a summary file for all samples using `summarize_pn_pn_sulfurovum.py` (have to be run with all the processed data), giving us `Sulfurovum_pn_ps_summary.txt`.
+
+```{r pn_ps, out.height='60%', out.width='60%'}
+dat<-read.table('aux_files/Sulfurovum_pn_ps_summary.txt',sep='\t',header=TRUE,na.strings="Inf")
+dat_counts<-na.omit(dat)
+dat_counts<-dat_counts[is.finite(dat_counts$pN_pS),]
+dat_counts$num_genomes <- factor(dat_counts$num_genomes)
+dat_counts$type <- factor(ifelse(dat_counts$num_genomes == 22, "N=22", ifelse(dat_counts$num_genomes %in% 1:19,"0<N<20",NA))) #arbitrady core and accessory naming
+
+# also look across categories by doing this:
+load("dat_category.RData")
+
+# gives Fig 4A
+ggplot(data = dat_counts, mapping = aes(x=num_genomes, y=pN_pS)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE,outlier.size = 1,aes(colour=num_genomes)) +
+  #geom_jitter(alpha = 0.3, aes(colour = num_genomes),na.rm=TRUE,size=1)+
+  geom_hline(yintercept=1, linetype=2, color = "rosybrown", size=1)+
+  xlab("Number of MAGs") +
+  ylab("pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+
+# we then find the Wilcoxon pairwise p-value for each Number of MAGs, then we also find the mean.
+allthe.p <- c()
+mean.p <- c()
+sd.p <- c()
+for(i in 1:22){
+  dat_counts$type01 <- ifelse(dat_counts$num_genomes==i,'yes','no')
+  mean.p[i] <- mean(dat_counts[dat_counts$num_genomes==i,]$pN_pS)
+  sd.p[i] <- sd(dat_counts[dat_counts$num_genomes==i,]$pN_pS)
+  wiwi <- wilcox.test(pN_pS ~ type01, data = dat_counts)
+  allthe.p[i] <- wiwi$p.value
+}
+p_value.pN_pS <- data.frame(Number= as.factor(c(1:22)),P= allthe.p, Mean = mean.p,
+                            Sd = sd.p)
+
+# gives the supplementary figure for the p-value
+ggplot(data=p_value.pN_pS,aes(x=Number,y=P))+
+  geom_point(size=3)+
+  xlab("Number of MAGs") +
+  ylab("Wilcoxon P-value") +
+  scale_y_log10()+
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+
+# gives the inset in Figure 4A for mean
+ggplot(data=p_value.pN_pS,aes(x=Number,y=Mean))+
+  geom_point(size=3)+
+  xlab("Number of MAGs") +
+  ylab("Mean of pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=24),
+        legend.position = "none")
+
+# gives the supplementary for standard deviation
+ggplot(data=p_value.pN_pS,aes(x=Number,y=Sd))+
+  geom_point(size=3)+
+  xlab("Number of MAGs") +
+  ylab("Standard Deviation\nof pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+
+# supplementary for genome name
+ggplot(data = dat_counts, mapping = aes(x=gsub("Sulfurovum_","",genome_name), 
+                                        y=pN_pS)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE,outlier.size = 1,aes(colour=genome_name)) +
+  geom_hline(yintercept=1, linetype=2, color = "rosybrown", size=1)+
+  xlab("MAG") +
+  ylab("pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+
+# gives Fig 4B
+ggplot(data = na.omit(dat_counts), mapping = aes(x=type, y=pN_pS)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE,outlier.size = 1,aes(colour=type)) +
+  geom_hline(yintercept=1, linetype=2, color = "rosybrown", size=1)+
+  xlab("Number of MAGs") +
+  ylab("pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+
+# now the supplementary figure for data across categories
+ggplot(data = dat_category, mapping = aes(x=category, y=pN_pS)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE, aes(colour = category),outlier.size=1) +
+  #geom_jitter(alpha = 0.3, aes(colour = category),na.rm=TRUE,size=1)+
+  geom_hline(yintercept=1, linetype=2, color = "rosybrown", size=1)+
+  xlab("Category") +
+  ylab("pN/pS") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position = "none")
+```
+
+Then, we load the data from the selective sweep study. We obtained this data from running `pre_poisson_test.py` which utilizes the SNV profile files generated from anvi'o script. For each sample, we got a Poisson CDF score file, which we later collected using `collect_poisson.py` which outputs `Sulfurovum_poisson_sweep.txt`.
+
+```{r phosphate_pn_ps_and_sweep, out.height='60%', out.width='60%'}
+# load, merge, and manipulate data
+data<-read.table('aux_files/Sulfurovum_poisson_sweep.txt',sep='\t',header=TRUE)
+data$numb <- factor(data$numb)
+data <- na.omit(data)
+data$pv_val_norm <- -log10(data$pv_val)
+data <- arrange(data,unique_id)
+data$pN_pS <- dat$pN_pS
+data$order <- seq(1:length(data[,1]))
+data$genome_name <- cluster$genome_name
+data$cluster_id <- cluster$gene_cluster_id
+data$category <- cluster$COG_CATEGORY
+data$func <- cluster$COG_FUNCTION
+
+# first, we still process the pN_pS data for the phosphate related genes
+phosphate.clusters <- c("GC_00001177",
+                       "GC_00001253",
+                       "GC_00001293",
+                       "GC_00001150",
+                       "GC_00001267") #the interesting phosphate gene clusters
+data.P <- na.omit(data[data$cluster_id %in% phosphate.clusters,])
+data.P$unique_id <- as.factor(data.P$unique_id)
+
+ggplot(data.P,mapping = aes(x=unique_id, y=pN_pS, fill=func)) +
+  geom_bar(stat='identity') +
+  theme_bw()+
+  xlab("Gene") +
+  ylab("pN/pS Ratio") +
+  theme(axis.text=element_text(size=12),
+        axis.text.x=element_blank(),
+        legend.text=element_text(size=12),
+        legend.title=element_blank(),
+        axis.title=element_text(size=14),
+        legend.position = c(0.55,0.8))
+```
+
+Then, we performed the actual selective sweep analyses. The data for total number of SNVs in each MAG is directly extracted from the SNV profiled files provided by anvi'o.
+
+```{r sweep, out.height='60%', out.width='60%'}
+# first, we consider the SNV density in each MAG
+SNV_file <- read.csv("aux_files/normalized_snv.csv")
+SNV_file$ID <- gsub('Sulfurovum_', '', as.vector(SNV_file$genome_id))
+
+# Fig 5A
+ggplot(SNV_file,mapping=aes(x=ID,y=norm_SNV,fill=vent_field))+
+  geom_col()+
+  xlab("Sulfurovum MAG") +
+  ylab("Normalized SNV Count \n (#SNVs/kbp)") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        legend.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.title=element_blank(),
+        legend.position=c(0.15,0.68))
+
+# now analyze the gene-specific sweeps
+numb.numb <- nlevels(data$numb)
+proportion <- rep(0,numb.numb)
+
+# p-values < 1e-10
+for (i in 1:numb.numb){
+  proportion[i] = sum(data[data$pv_val_norm>10,]$numb==i,na.rm=TRUE)/
+    sum(cluster$num_genomes_gene_cluster_has_hits==i,na.rm=TRUE)
+}
+
+# the plot for proportion of genes with p-values < 1e-10 (Supplementary)
+ggplot(mapping=aes(x=1:22,y=proportion))+
+  geom_point(size=3)+
+  xlab("Number of MAGs") +
+  ylab("Proportion of Genes \n with P < 1e-10") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position="none")
+
+# plot for P-values vs. SNV 
+data$SNV.p <- ifelse(data$SNV==0,0.5,data$SNV)
+data_input <- data[data$numb %in% c(1,4,10,15,18,22),]
+data_input$label <- paste("No. of MAGs = ",as.character(data_input$numb), sep="")
+data_input$label <- as.factor(data_input$label)
+data_input$label <- ordered(data_input$label,levels=c(
+  "No. of MAGs = 1", "No. of MAGs = 4","No. of MAGs = 10",
+  "No. of MAGs = 15", "No. of MAGs = 18", "No. of MAGs = 22"
+)) # change labeling 
+
+# Fig 5B
+ggplot(data = data_input, mapping = aes(x=SNV.p, y=pv_val)) +
+  scale_x_log10(limits=c(0.5,2000),breaks=c(1,10,100,1000))+
+  scale_y_log10()+
+  geom_point(alpha = 0.2,na.rm=TRUE)+
+  geom_hline(yintercept=1e-10, linetype=2, color = "rosybrown", size=1)+
+  xlab("Number of SNVs") +
+  ylab("P-value") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        legend.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        strip.text = element_text(size=12),
+        legend.position="none")+
+  facet_wrap(~label,ncol=3)
+
+# plot for all possible number of MAGs (Supplementary)
+data$label <- paste("No. of MAGs = ",as.character(data$numb), sep="")
+data$label <- as.factor(data$label)
+data$label <- ordered(data$label,levels=paste("No. of MAGs = ",
+                                                               as.character(c(1:22)),
+                                                               sep=""))
+ggplot(data = data, mapping = aes(x=SNV.p, y=pv_val)) +
+  scale_x_log10(limits=c(0.5,2000),breaks=c(1,10,100,1000))+
+  scale_y_log10()+
+  geom_point(alpha = 0.2,na.rm=TRUE)+
+  geom_hline(yintercept=1e-10, linetype=2, color = "rosybrown", size=1)+
+  xlab("Number of SNVs") +
+  ylab("P-value") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=10),
+        axis.title=element_text(size=14),
+        strip.text = element_text(size=12),
+        legend.position="none")+
+  facet_wrap(~label,ncol=4)
+
+# then plot only for #SNV = 0
+data.0 <- data[data$SNV==0,]
+
+# Fig 5C
+ggplot(data = data.0, mapping = aes(x=numb, y=pv_val)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE,outlier.size = 3,aes(colour=numb)) +
+  scale_y_log10()+
+  #geom_boxplot(alpha = 0,na.rm = TRUE) +
+  #geom_jitter(alpha = 0.3, aes(colour = numb),na.rm=TRUE,size=0.5)+
+  geom_hline(yintercept=1e-10, linetype=2, color = "rosybrown", size=1)+
+  xlab("Number of MAGs") +
+  ylab("P-value") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position="none")
+```
+
+Finally, we also studied whether there is a relationship between the number of MAGs a cluster of some is found in and the gene's contig coverage. We obtained coverage data by running `get_contig_coverage.py` which utilized the contig databases and, conveniently, an anvi'o script `anvi-export-splits-and-coverages`. As a result, we have `All_Sulfurovum_self_to_self_coverage.txt` which only includes self-to-self coverage.
+
+```{r coverage_problem, out.height='60%',out.width='60%'}
+coverage<-read.table('aux_files/All_Sulfurovum_self_to_self_coverage.txt',sep='\t',header=TRUE)
+coverage<-dplyr::arrange(coverage,unique_id)
+coverage$number <- as.factor(cluster$num_genomes_gene_cluster_has_hits)
+ggplot(data=coverage,mapping=aes(x=number,y=coverage)) +
+  geom_boxplot(alpha = 0.3,na.rm = TRUE,outlier.size = 3,aes(colour=number)) +
+  scale_y_log10()+
+  xlab("Number of MAGs") +
+  ylab("Average Coverage\nof Contig") +
+  theme_bw()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        legend.position="none")
+
+```
