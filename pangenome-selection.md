@@ -1,7 +1,6 @@
-Generating Figures for Moulana et al.
+Processing Data and Generating Figures for Moulana et al.
 ================
 Alief Moulana
-7/10/2019
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE)
