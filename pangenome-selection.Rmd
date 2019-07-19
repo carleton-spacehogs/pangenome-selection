@@ -1,5 +1,5 @@
 ---
-title: "Generating Figures for Moulana et al."
+title: "Processing Data and Generating Figures for Moulana et al."
 author: "Alief Moulana"
 date: "7/10/2019"
 output: rmarkdown::github_document
