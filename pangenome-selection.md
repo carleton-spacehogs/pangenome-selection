@@ -173,7 +173,7 @@ gene.chance<-function(i){
   data.selected <- summary_data[i,] # look at the ith row of data
   mean.complete <- 100*data.selected$number_genes/data.selected$completion # approximate total number of genes
   sd.complete <- -(mean.complete-data.selected$number_genes)/(qnorm(data.selected$redundancy/100)) # approximate standard deviation
-  missing.genes <- rnorm(1,mean.complete,sd.complete) # total number of genes supossedly under normal distribution
+  missing.genes <- rnorm(1,mean.complete,sd.complete) - data.selected$number_genes # total number of genes supossedly under normal distribution
   return(missing.genes/(10263-data.selected$number_genes)) # probability a gene outside this genome is a missing gene in this genome
 }
 
